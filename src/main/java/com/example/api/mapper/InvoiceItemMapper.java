@@ -2,7 +2,6 @@ package com.example.api.mapper;
 
 import com.example.api.dto.InvoiceItemDto;
 import com.example.api.entity.InvoiceItem;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component

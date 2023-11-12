@@ -3,8 +3,6 @@ package com.example.api.mapper;
 import com.example.api.dto.InvoiceDto;
 import com.example.api.dto.InvoiceItemDto;
 import com.example.api.entity.Invoice;
-import com.example.api.entity.InvoiceItem;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,8 +10,11 @@ import java.util.List;
 @Component
 public class InvoiceMapper {
 
-    @Autowired
-    private InvoiceItemMapper invoiceItemMapper;
+    private final InvoiceItemMapper invoiceItemMapper;
+
+    public InvoiceMapper(InvoiceItemMapper invoiceItemMapper) {
+        this.invoiceItemMapper = invoiceItemMapper;
+    }
 
     public Invoice toEntity(InvoiceDto invoiceDto){
         Invoice invoice = new Invoice();

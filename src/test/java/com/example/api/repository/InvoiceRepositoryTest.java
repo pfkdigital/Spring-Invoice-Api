@@ -5,6 +5,7 @@ import com.example.api.dto.InvoiceItemDto;
 import com.example.api.entity.Address;
 import com.example.api.entity.Invoice;
 import com.example.api.entity.InvoiceItem;
+import com.example.api.mapper.InvoiceMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class InvoiceRepositoryTest {
     @Autowired
     private InvoiceRepository invoiceRepository;
-
     private static InvoiceDto invoiceDto;
     private static Invoice invoice;
 
@@ -79,5 +79,27 @@ public class InvoiceRepositoryTest {
 
         assertNotNull(savedInvoice);
         assertEquals("INV-1234",savedInvoice.getInvoiceReference());
+    }
+
+    @Test
+    public void InvoiceRepository_GetInvoiceById_ReturnInvoice(){
+        Invoice savedInvoice = invoiceRepository.save(invoice);
+
+        Invoice selectedInvoice = invoiceRepository.findById(invoice.getId()).get();
+
+        assertNotNull(selectedInvoice);
+        assertEquals("INV-1234",invoice.getInvoiceReference());
+
+    }
+
+    @Test
+    public void InvoiceRepository_GetAllInvoices_ReturnListOfInvoices(){
+        invoiceRepository.save(invoice);
+
+        List<Invoice> selectedInvoices = invoiceRepository.findAll();
+
+        assertNotNull(selectedInvoices);
+        assertEquals(1,selectedInvoices.size());
+
     }
 }

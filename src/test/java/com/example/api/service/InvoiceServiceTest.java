@@ -5,6 +5,8 @@ import com.example.api.dto.InvoiceItemDto;
 import com.example.api.entity.Address;
 import com.example.api.entity.Invoice;
 import com.example.api.entity.InvoiceItem;
+import com.example.api.exception.InvoiceNotFoundException;
+import com.example.api.mapper.InvoiceMapper;
 import com.example.api.repository.InvoiceRepository;
 import com.example.api.service.impl.InvoiceServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,18 +16,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class InvoiceServiceTest {
   @Mock private InvoiceRepository invoiceRepository;
+
+  @Mock
+  private InvoiceMapper invoiceMapper;
 
   @InjectMocks private InvoiceServiceImpl invoiceService;
 
@@ -83,11 +86,46 @@ public class InvoiceServiceTest {
 
   @Test
   public void InvoiceService_CreateInvoice_ReturnInvoiceDto() {
+    when(invoiceMapper.toEntity(Mockito.any(InvoiceDto.class))).thenReturn(invoice);
     when(invoiceRepository.save(Mockito.any(Invoice.class))).thenReturn(invoice);
+    when(invoiceMapper.toDto(Mockito.any(Invoice.class))).thenReturn(invoiceDto);
 
     InvoiceDto savedInvoice = invoiceService.createInvoice(invoiceDto);
 
     assertNotNull(savedInvoice);
     assertEquals("INV-1234", savedInvoice.getInvoiceReference());
+  }
+
+  @Test
+  public void InvoiceService_GetInvoiceById_ReturnInvoiceDto() {
+    int invoiceId = 1;
+    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
+    when(invoiceMapper.toDto(Mockito.any(Invoice.class))).thenReturn(invoiceDto);
+
+    InvoiceDto selectedInvoice = invoiceService.getInvoiceById(invoiceId);
+
+    assertNotNull(selectedInvoice);
+    assertEquals("INV-1234", selectedInvoice.getInvoiceReference());
+  }
+
+  @Test
+  public void InvoiceService_GetInvoiceById_ReturnInvoiceNotFoundException() {
+    int invoiceId = 1;
+    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
+
+    assertThrows(InvoiceNotFoundException.class, () -> invoiceService.getInvoiceById(invoiceId));
+  }
+
+  @Test
+  public void InvoiceService_GetAllInvoices_ReturnAListOfInvoices(){
+    List<Invoice> invoiceList = new ArrayList<>(List.of(invoice));
+
+    when(invoiceRepository.findAll()).thenReturn(invoiceList);
+    when(invoiceMapper.toDto(Mockito.any())).thenReturn(invoiceDto);
+
+    List<InvoiceDto> invoiceDtos = invoiceService.getAllInvoices();
+
+    assertNotNull(invoiceDtos);
+    assertEquals(1,invoiceDtos.size());
   }
 }

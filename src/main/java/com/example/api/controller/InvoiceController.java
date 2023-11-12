@@ -4,10 +4,9 @@ import com.example.api.dto.InvoiceDto;
 import com.example.api.service.InvoiceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/invoices")
@@ -22,5 +21,20 @@ public class InvoiceController {
     @PostMapping
     public ResponseEntity<InvoiceDto> createInvoice(@RequestBody InvoiceDto invoiceDto){
         return new ResponseEntity<>(invoiceService.createInvoice(invoiceDto), HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<InvoiceDto>> getAllInvoices() {
+        return new ResponseEntity<>(invoiceService.getAllInvoices(),HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<InvoiceDto> getInvoiceById(@PathVariable Integer id){
+        return new ResponseEntity<>(invoiceService.getInvoiceById(id),HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<InvoiceDto> updateInvoiceById(@PathVariable Integer id,@RequestBody InvoiceDto invoiceDto){
+        return new ResponseEntity<>(invoiceService.updateInvoice(id,invoiceDto),HttpStatus.ACCEPTED);
     }
 }
