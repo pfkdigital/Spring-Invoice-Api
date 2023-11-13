@@ -1,10 +1,11 @@
 package com.example.api.dto;
 
 import com.example.api.entity.Address;
-import com.example.api.entity.InvoiceItem;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class InvoiceDto {
   private Integer id;
@@ -158,18 +159,27 @@ public class InvoiceDto {
     this.invoiceItems = invoiceItems;
   }
 
-    public Integer getId() {
-        return id;
-    }
+  public Integer getId() {
+    return id;
+  }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+  public void setId(Integer id) {
+    this.id = id;
+  }
 
-    @Override
+  public void addInvoiceItem(InvoiceItemDto invoiceItem) {
+    if (invoiceItems == null) {
+      invoiceItems = new ArrayList<>();
+    }
+    invoiceItems.add(invoiceItem);
+  }
+
+  @Override
   public String toString() {
     return "InvoiceDto{"
-        + "invoiceReference='"
+        + "id="
+        + id
+        + ", invoiceReference='"
         + invoiceReference
         + '\''
         + ", createdAt="
@@ -196,6 +206,8 @@ public class InvoiceDto {
         + clientAddress
         + ", total="
         + total
+        + ", invoiceItems="
+        + invoiceItems
         + '}';
   }
 }

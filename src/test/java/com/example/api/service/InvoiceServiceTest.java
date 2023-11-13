@@ -16,19 +16,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class InvoiceServiceTest {
   @Mock private InvoiceRepository invoiceRepository;
 
-  @Mock
-  private InvoiceMapper invoiceMapper;
+  @Mock private InvoiceMapper invoiceMapper;
 
   @InjectMocks private InvoiceServiceImpl invoiceService;
 
@@ -46,8 +44,10 @@ public class InvoiceServiceTest {
     List<InvoiceItem> invoiceItems = Arrays.asList(item1, item2);
 
     // Sample InvoiceItem list
-    InvoiceItemDto item1Dto = new InvoiceItemDto("Item 1", 2, 100.0f, 200f); // Example item
-    InvoiceItemDto item2Dto = new InvoiceItemDto("Item 2", 3, 200.0f, 600f); // Another example item
+    InvoiceItemDto item1Dto = new InvoiceItemDto(1, "Item 1", 2, 100.0f, 200f); // Example item
+    InvoiceItemDto item2Dto =
+        new InvoiceItemDto(1, "Item 2", 3, 200.0f, 600f); // Another example item
+
     List<InvoiceItemDto> invoiceItemsDto = Arrays.asList(item1Dto, item2Dto);
 
     // Creating an instance of Invoice
@@ -94,6 +94,7 @@ public class InvoiceServiceTest {
 
     assertNotNull(savedInvoice);
     assertEquals("INV-1234", savedInvoice.getInvoiceReference());
+    verify(invoiceRepository).save(Mockito.any(Invoice.class));
   }
 
   @Test
@@ -106,6 +107,7 @@ public class InvoiceServiceTest {
 
     assertNotNull(selectedInvoice);
     assertEquals("INV-1234", selectedInvoice.getInvoiceReference());
+    verify(invoiceRepository).findById(invoiceId);
   }
 
   @Test
@@ -114,10 +116,11 @@ public class InvoiceServiceTest {
     when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
 
     assertThrows(InvoiceNotFoundException.class, () -> invoiceService.getInvoiceById(invoiceId));
+    verify(invoiceRepository).findById(invoiceId);
   }
 
   @Test
-  public void InvoiceService_GetAllInvoices_ReturnAListOfInvoices(){
+  public void InvoiceService_GetAllInvoices_ReturnAListOfInvoices() {
     List<Invoice> invoiceList = new ArrayList<>(List.of(invoice));
 
     when(invoiceRepository.findAll()).thenReturn(invoiceList);
@@ -126,6 +129,33 @@ public class InvoiceServiceTest {
     List<InvoiceDto> invoiceDtos = invoiceService.getAllInvoices();
 
     assertNotNull(invoiceDtos);
-    assertEquals(1,invoiceDtos.size());
+    assertEquals(1, invoiceDtos.size());
+    verify(invoiceRepository).findAll();
+  }
+
+  @Test
+  public void InvoiceService_UpdateAnInvoice_ReturnUpdatedInvoice() {
+    int invoiceId = 1;
+
+    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
+    when(invoiceRepository.save(Mockito.any())).thenReturn(invoice);
+    when(invoiceMapper.toDto(Mockito.any())).thenReturn(invoiceDto);
+
+    InvoiceDto updatedInvoice = invoiceService.updateInvoice(1, invoiceDto);
+
+    assertNotNull(updatedInvoice);
+    verify(invoiceRepository).findById(invoiceId);
+    verify(invoiceRepository).save(Mockito.any(Invoice.class));
+  }
+
+  @Test
+  public void InvoiceService_DeleteInvoiceById_ReturnString() {
+    int invoiceId = 1;
+    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
+    doNothing().when(invoiceRepository).delete(Mockito.any(Invoice.class));
+
+    assertAll(() -> invoiceService.deleteInvoiceById(invoiceId));
+    verify(invoiceRepository).findById(Mockito.anyInt());
+    verify(invoiceRepository).delete(Mockito.any(Invoice.class));
   }
 }

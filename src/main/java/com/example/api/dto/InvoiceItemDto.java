@@ -10,7 +10,8 @@ public class InvoiceItemDto {
 
   public InvoiceItemDto() {}
 
-  public InvoiceItemDto(String name, Integer quantity, Float price,Float total) {
+  public InvoiceItemDto(Integer id, String name, Integer quantity, Float price, Float total) {
+    this.id = id;
     this.name = name;
     this.quantity = quantity;
     this.price = price;
@@ -60,16 +61,12 @@ public class InvoiceItemDto {
 
   @Override
   public String toString() {
-    return "InvoiceItemDto{"
-        + "id="
-        + id
-        + ", name='"
-        + name
-        + '\''
-        + ", quantity="
-        + quantity
-        + ", price="
-        + price
-        + '}';
+    return "InvoiceItemDto{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", quantity=" + quantity +
+            ", price=" + price +
+            ", total=" + total +
+            '}';
   }
 }

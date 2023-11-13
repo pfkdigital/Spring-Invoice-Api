@@ -11,6 +11,7 @@ public class InvoiceItemMapper {
         newInvoiceItem.setName(invoiceItemDto.getName());
         newInvoiceItem.setPrice(invoiceItemDto.getPrice());
         newInvoiceItem.setQuantity(invoiceItemDto.getQuantity());
+
         return newInvoiceItem;
     }
 

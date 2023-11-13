@@ -37,4 +37,9 @@ public class InvoiceController {
     public ResponseEntity<InvoiceDto> updateInvoiceById(@PathVariable Integer id,@RequestBody InvoiceDto invoiceDto){
         return new ResponseEntity<>(invoiceService.updateInvoice(id,invoiceDto),HttpStatus.ACCEPTED);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteInvoiceById(@PathVariable Integer id){
+        return new ResponseEntity<>(invoiceService.deleteInvoiceById(id),HttpStatus.OK);
+    }
 }

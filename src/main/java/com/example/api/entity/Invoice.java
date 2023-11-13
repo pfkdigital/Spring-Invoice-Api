@@ -61,7 +61,7 @@ public class Invoice {
   @OneToMany(
       mappedBy = "invoice",
       fetch = FetchType.EAGER,
-      cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+      cascade = CascadeType.ALL)
   private List<InvoiceItem> invoiceItems;
 
   public Invoice() {}
@@ -195,15 +195,6 @@ public class Invoice {
 
   public void setInvoiceItems(List<InvoiceItem> invoiceItems) {
     this.invoiceItems = invoiceItems;
-    calculateTotal();
-  }
-
-  public void calculateTotal() {
-    long total;
-
-    for (InvoiceItem item : invoiceItems) {
-      total = (long) (item.getQuantity() * item.getPrice());
-    }
   }
 
   public void addInvoiceItem(InvoiceItem invoiceItem) {
