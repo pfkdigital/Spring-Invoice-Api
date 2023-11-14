@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ExtendWith(MockitoExtension.class)
 public class InvoiceControllerTest {
   private InvoiceDto invoiceDto;
-  private  Invoice invoice;
+  private Invoice invoice;
   @Autowired private MockMvc mockMvc;
   @MockBean private InvoiceService invoiceService;
   @Autowired private ObjectMapper objectMapper;
@@ -44,72 +44,72 @@ public class InvoiceControllerTest {
   public void setup() {
     // Create a sender address using the builder
     Address senderAddress =
-            Address.builder()
-                    .street("123 Sender St")
-                    .city("Sender City")
-                    .postCode("S123")
-                    .country("Sender Country")
-                    .build();
+        Address.builder()
+            .street("123 Sender St")
+            .city("Sender City")
+            .postCode("S123")
+            .country("Sender Country")
+            .build();
 
     // Create a client address using the builder
     Address clientAddress =
-            Address.builder()
-                    .street("456 Client Ave")
-                    .city("Client City")
-                    .postCode("C456")
-                    .country("Client Country")
-                    .build();
+        Address.builder()
+            .street("456 Client Ave")
+            .city("Client City")
+            .postCode("C456")
+            .country("Client Country")
+            .build();
 
     // Sample InvoiceItem list
     List<InvoiceItem> invoiceItems =
-            Arrays.asList(
-                    InvoiceItem.builder().name("Item 1").quantity(2).price(100.0f).total(200.0f).build(),
-                    InvoiceItem.builder().name("Item 2").quantity(3).price(200.0f).total(600.0f).build());
+        Arrays.asList(
+            InvoiceItem.builder().name("Item 1").quantity(2).price(100.0f).total(200.0f).build(),
+            InvoiceItem.builder().name("Item 2").quantity(3).price(200.0f).total(600.0f).build());
 
     // Creating an instance of Invoice using the builder
     invoice =
-            Invoice.builder()
-                    .invoiceReference("INV-1234")
-                    .createdAt(new Date())
-                    .paymentDue(new Date()) // Should be set to a future date
-                    .description("Invoice for services")
-                    .paymentTerms(30)
-                    .clientName("Client Inc.")
-                    .clientEmail("client@email.com")
-                    .invoiceStatus("Pending")
-                    .senderAddress(senderAddress)
-                    .clientAddress(clientAddress)
-                    .total(600.0f)
-                    .invoiceItems(invoiceItems)
-                    .build();
+        Invoice.builder()
+            .invoiceReference("INV-1234")
+            .createdAt(new Date())
+            .paymentDue(new Date()) // Should be set to a future date
+            .description("Invoice for services")
+            .paymentTerms(30)
+            .clientName("Client Inc.")
+            .clientEmail("client@email.com")
+            .invoiceStatus("Pending")
+            .senderAddress(senderAddress)
+            .clientAddress(clientAddress)
+            .total(600.0f)
+            .invoiceItems(invoiceItems)
+            .build();
 
     // Creating an instance of InvoiceDto using the builder
     invoiceDto =
-            InvoiceDto.builder()
-                    .invoiceReference("INV-1234")
-                    .createdAt(new Date())
-                    .paymentDue(new Date()) // Should be set to a future date
-                    .description("Invoice for services")
-                    .paymentTerms(30)
-                    .clientName("Client Inc.")
-                    .clientEmail("client@email.com")
-                    .invoiceStatus("Pending")
-                    .senderAddress(senderAddress)
-                    .clientAddress(clientAddress)
-                    .total(600.0f)
-                    .invoiceItems(
-                            invoiceItems.stream()
-                                    .map(
-                                            item ->
-                                                    InvoiceItemDto.builder()
-                                                            .id(item.getId())
-                                                            .name(item.getName())
-                                                            .quantity(item.getQuantity())
-                                                            .price(item.getPrice())
-                                                            .total(item.getTotal())
-                                                            .build())
-                                    .toList())
-                    .build();
+        InvoiceDto.builder()
+            .invoiceReference("INV-1234")
+            .createdAt(new Date())
+            .paymentDue(new Date()) // Should be set to a future date
+            .description("Invoice for services")
+            .paymentTerms(30)
+            .clientName("Client Inc.")
+            .clientEmail("client@email.com")
+            .invoiceStatus("Pending")
+            .senderAddress(senderAddress)
+            .clientAddress(clientAddress)
+            .total(600.0f)
+            .invoiceItems(
+                invoiceItems.stream()
+                    .map(
+                        item ->
+                            InvoiceItemDto.builder()
+                                .id(item.getId())
+                                .name(item.getName())
+                                .quantity(item.getQuantity())
+                                .price(item.getPrice())
+                                .total(item.getTotal())
+                                .build())
+                    .toList())
+            .build();
   }
 
   @Test
@@ -169,7 +169,7 @@ public class InvoiceControllerTest {
   @Test
   public void InvoiceController_GetInvoiceById_ReturnInvoiceNotFoundException() throws Exception {
     int invoiceId = 1;
-    String expectedResponse = "Invoice of id" + invoiceId + " was not found";
+    String expectedResponse = "Invoice of id " + invoiceId + " was not found";
     doThrow(new InvoiceNotFoundException("")).when(invoiceService).getInvoiceById(invoiceId);
 
     ResultActions response =
@@ -184,8 +184,7 @@ public class InvoiceControllerTest {
   @Test
   public void InvoiceController_UpdateAnInvoice_ReturnUpdatedInvoice() throws Exception {
     int invoiceId = 1;
-    when(invoiceService.updateInvoice(invoiceId, invoiceDto))
-        .thenReturn(invoiceDto);
+    when(invoiceService.updateInvoice(invoiceId, invoiceDto)).thenReturn(invoiceDto);
 
     ResultActions response =
         mockMvc.perform(
@@ -193,25 +192,59 @@ public class InvoiceControllerTest {
                 .content(objectMapper.writeValueAsString(invoiceDto))
                 .contentType(MediaType.APPLICATION_JSON));
 
-    response.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isAccepted());
+    response
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isAccepted());
+  }
+
+  @Test
+  public void InvoiceController_UpdateAnInvoice_ReturnInvoiceNotFoundException() throws Exception {
+    int invoiceId = 1;
+    String expectedResponse = "Invoice of id " + invoiceId + " was not found";
+    doThrow(new InvoiceNotFoundException("")).when(invoiceService).getInvoiceById(invoiceId);
+
+    ResultActions response =
+        mockMvc.perform(
+            get("/api/v1/invoices/{id}", invoiceId).contentType(MediaType.APPLICATION_JSON));
+
+    response
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isNotFound());
   }
 
   @Test
   public void InvoiceController_DeleteAnInvoiceById_ReturnString() throws Exception {
-    Integer invoiceId = 1;
-    String expectedResponse = "Invoice of id" + invoiceId + " was successfully deleted";
+    int invoiceId = 1;
+    String expectedResponse = "Invoice of id " + invoiceId + " was successfully deleted";
 
     when(invoiceService.deleteInvoiceById(invoiceId)).thenReturn(expectedResponse);
 
     ResultActions response =
         mockMvc.perform(
-            delete("/api/v1/invoices/{id}", invoiceId)
-                .content(objectMapper.writeValueAsString(invoiceDto))
-                .contentType(MediaType.APPLICATION_JSON));
+            delete("/api/v1/invoices/{id}", invoiceId).contentType(MediaType.APPLICATION_JSON));
 
     response
         .andDo(MockMvcResultHandlers.print())
         .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().string(expectedResponse));
+  }
+
+  @Test
+  public void InvoiceController_DeleteInvoiceById_ReturnInvoiceNotFoundException()
+      throws Exception {
+    int invoiceId = 1;
+    String expectedResponse = "Invoice of id " + invoiceId + " was not found";
+    doThrow(new InvoiceNotFoundException(expectedResponse))
+        .when(invoiceService)
+        .deleteInvoiceById(Mockito.anyInt());
+
+    ResultActions response =
+        mockMvc.perform(
+            delete("/api/v1/invoices/{id}", invoiceId).contentType(MediaType.APPLICATION_JSON));
+
+    response
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isNotFound())
         .andExpect(MockMvcResultMatchers.content().string(expectedResponse));
   }
 }

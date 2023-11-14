@@ -167,6 +167,16 @@ public class InvoiceServiceTest {
   }
 
   @Test
+  public void InvoiceService_UpdateAnInvoice_ReturnInvoiceNotFoundException() {
+    int invoiceId = 1;
+    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
+
+    assertThrows(
+        InvoiceNotFoundException.class, () -> invoiceService.updateInvoice(invoiceId, invoiceDto));
+    verify(invoiceRepository).findById(Mockito.anyInt());
+  }
+
+  @Test
   public void InvoiceService_DeleteInvoiceById_ReturnString() {
     int invoiceId = 1;
     when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
@@ -175,5 +185,15 @@ public class InvoiceServiceTest {
     assertAll(() -> invoiceService.deleteInvoiceById(invoiceId));
     verify(invoiceRepository).findById(Mockito.anyInt());
     verify(invoiceRepository).delete(Mockito.any(Invoice.class));
+  }
+
+  @Test
+  public void InvoiceService_DeleteAnInvoice_ReturnInvoiceNotFoundException() {
+    int invoiceId = 1;
+    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
+
+    assertThrows(
+            InvoiceNotFoundException.class, () -> invoiceService.deleteInvoiceById(invoiceId));
+    verify(invoiceRepository).findById(Mockito.anyInt());
   }
 }
