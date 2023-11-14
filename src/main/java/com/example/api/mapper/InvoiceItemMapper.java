@@ -6,21 +6,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvoiceItemMapper {
-    public InvoiceItem toEntity(InvoiceItemDto invoiceItemDto) {
-        InvoiceItem newInvoiceItem = new InvoiceItem();
-        newInvoiceItem.setName(invoiceItemDto.getName());
-        newInvoiceItem.setPrice(invoiceItemDto.getPrice());
-        newInvoiceItem.setQuantity(invoiceItemDto.getQuantity());
+  public InvoiceItem toEntity(InvoiceItemDto invoiceItemDto) {
+    return InvoiceItem.builder()
+        .name(invoiceItemDto.getName())
+        .price(invoiceItemDto.getPrice())
+        .quantity(invoiceItemDto.getQuantity())
+        .total(invoiceItemDto.getTotal())
+        .build();
+  }
 
-        return newInvoiceItem;
-    }
-
-    public InvoiceItemDto toDto(InvoiceItem invoiceItem) {
-        InvoiceItemDto newInvoiceItemDto = new InvoiceItemDto();
-        newInvoiceItemDto.setName(invoiceItem.getName());
-        newInvoiceItemDto.setPrice(invoiceItem.getPrice());
-        newInvoiceItemDto.setQuantity(invoiceItem.getQuantity());
-        newInvoiceItemDto.setId(invoiceItem.getId());
-        return newInvoiceItemDto;
-    }
+  public InvoiceItemDto toDto(InvoiceItem invoiceItem) {
+    return InvoiceItemDto.builder()
+        .id(invoiceItem.getId())
+        .name(invoiceItem.getName())
+        .price(invoiceItem.getPrice())
+        .quantity(invoiceItem.getQuantity())
+        .total(invoiceItem.getTotal())
+        .build();
+  }
 }

@@ -52,31 +52,37 @@ public class InvoiceServiceImpl implements InvoiceService {
   @Override
   @Transactional
   public InvoiceDto updateInvoice(Integer id, InvoiceDto invoiceDto) {
-
     Invoice selectedInvoice =
         invoiceRepository
             .findById(id)
             .orElseThrow(
                 () -> new InvoiceNotFoundException("Invoice of id " + id + " was not found"));
 
-    selectedInvoice.setInvoiceReference(invoiceDto.getInvoiceReference());
-    selectedInvoice.setCreatedAt(invoiceDto.getCreatedAt());
-    selectedInvoice.setPaymentDue(invoiceDto.getPaymentDue());
-    selectedInvoice.setPaymentTerms(invoiceDto.getPaymentTerms());
-    selectedInvoice.setDescription(invoiceDto.getDescription());
-    selectedInvoice.setClientName(invoiceDto.getClientName());
-    selectedInvoice.setClientEmail(invoiceDto.getClientEmail());
-    selectedInvoice.setInvoiceStatus(invoiceDto.getInvoiceStatus());
-    selectedInvoice.setSenderAddress(invoiceDto.getSenderAddress());
-    selectedInvoice.setSenderAddress(invoiceDto.getSenderAddress());
-    selectedInvoice.setTotal(invoiceDto.getTotal());
-    selectedInvoice.setInvoiceItems(
-        invoiceDto.getInvoiceItems().stream()
-            .map(
-                item ->
-                    new InvoiceItem(
-                        item.getName(), item.getQuantity(), item.getPrice(), item.getTotal()))
-            .collect(Collectors.toList()));
+    selectedInvoice =
+        Invoice.builder()
+            .invoiceReference(invoiceDto.getInvoiceReference())
+            .createdAt(invoiceDto.getCreatedAt())
+            .paymentDue(invoiceDto.getPaymentDue())
+            .paymentTerms(invoiceDto.getPaymentTerms())
+            .description(invoiceDto.getDescription())
+            .clientName(invoiceDto.getClientName())
+            .clientEmail(invoiceDto.getClientEmail())
+            .invoiceStatus(invoiceDto.getInvoiceStatus())
+            .senderAddress(invoiceDto.getSenderAddress())
+            .clientAddress(invoiceDto.getClientAddress())
+            .total(invoiceDto.getTotal())
+            .invoiceItems(
+                invoiceDto.getInvoiceItems().stream()
+                    .map(
+                        itemDto ->
+                            InvoiceItem.builder()
+                                .name(itemDto.getName())
+                                .quantity(itemDto.getQuantity())
+                                .price(itemDto.getPrice())
+                                .total(itemDto.getTotal())
+                                .build())
+                    .collect(Collectors.toList()))
+            .build();
 
     Invoice updatedInvoice = invoiceRepository.save(selectedInvoice);
 
@@ -84,8 +90,13 @@ public class InvoiceServiceImpl implements InvoiceService {
   }
 
   @Override
+  @Transactional
   public InvoiceDto updateInvoiceStatus(Integer id) {
-    Invoice invoiceToBeUpdated = invoiceRepository.findById(id).orElseThrow(() -> new InvoiceNotFoundException("Invoice of id " + id + " was not found"));
+    Invoice invoiceToBeUpdated =
+        invoiceRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new InvoiceNotFoundException("Invoice of id " + id + " was not found"));
 
     invoiceToBeUpdated.setInvoiceReference("Paid");
     Invoice paidInvoice = invoiceRepository.save(invoiceToBeUpdated);
@@ -94,8 +105,13 @@ public class InvoiceServiceImpl implements InvoiceService {
   }
 
   @Override
+  @Transactional
   public String deleteInvoiceById(Integer id) {
-    Invoice invoiceToBeDeleted = invoiceRepository.findById(id).orElseThrow(() -> new InvoiceNotFoundException("Invoice of id " + id + " was not found"));
+    Invoice invoiceToBeDeleted =
+        invoiceRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new InvoiceNotFoundException("Invoice of id " + id + " was not found"));
 
     invoiceRepository.delete(invoiceToBeDeleted);
 

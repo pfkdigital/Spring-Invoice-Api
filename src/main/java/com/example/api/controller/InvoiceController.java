@@ -23,6 +23,11 @@ public class InvoiceController {
         return new ResponseEntity<>(invoiceService.createInvoice(invoiceDto), HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<InvoiceDto> updateInvoiceById(@PathVariable Integer id,@RequestBody InvoiceDto invoiceDto){
+        return new ResponseEntity<>(invoiceService.updateInvoice(id,invoiceDto),HttpStatus.ACCEPTED);
+    }
+
     @GetMapping
     public ResponseEntity<List<InvoiceDto>> getAllInvoices() {
         return new ResponseEntity<>(invoiceService.getAllInvoices(),HttpStatus.OK);
@@ -33,10 +38,7 @@ public class InvoiceController {
         return new ResponseEntity<>(invoiceService.getInvoiceById(id),HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<InvoiceDto> updateInvoiceById(@PathVariable Integer id,@RequestBody InvoiceDto invoiceDto){
-        return new ResponseEntity<>(invoiceService.updateInvoice(id,invoiceDto),HttpStatus.ACCEPTED);
-    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteInvoiceById(@PathVariable Integer id){

@@ -1,13 +1,22 @@
 package com.example.api.entity;
 
+import com.example.api.event.InvoiceCalculateTotalEvent;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "invoices")
+@NoArgsConstructor
+@AllArgsConstructor()
+@Data
+@Builder
+@EntityListeners(InvoiceCalculateTotalEvent.class)
 public class Invoice {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,144 +67,8 @@ public class Invoice {
   @Column(name = "total")
   private Float total;
 
-  @OneToMany(
-      mappedBy = "invoice",
-      fetch = FetchType.EAGER,
-      cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "invoice", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   private List<InvoiceItem> invoiceItems;
-
-  public Invoice() {}
-
-  public Invoice(
-      String invoiceReference,
-      Date createdAt,
-      Date paymentDue,
-      String description,
-      Integer paymentTerms,
-      String clientName,
-      String clientEmail,
-      String invoiceStatus,
-      Address senderAddress,
-      Address clientAddress,
-      Float total,
-      List<InvoiceItem> invoiceItems) {
-    this.invoiceReference = invoiceReference;
-    this.createdAt = createdAt;
-    this.paymentDue = paymentDue;
-    this.description = description;
-    this.paymentTerms = paymentTerms;
-    this.clientName = clientName;
-    this.clientEmail = clientEmail;
-    this.invoiceStatus = invoiceStatus;
-    this.senderAddress = senderAddress;
-    this.clientAddress = clientAddress;
-    this.total = total;
-    this.invoiceItems = invoiceItems;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
-  public String getInvoiceReference() {
-    return invoiceReference;
-  }
-
-  public void setInvoiceReference(String invoiceReference) {
-    this.invoiceReference = invoiceReference;
-  }
-
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public Date getPaymentDue() {
-    return paymentDue;
-  }
-
-  public void setPaymentDue(Date paymentDue) {
-    this.paymentDue = paymentDue;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Integer getPaymentTerms() {
-    return paymentTerms;
-  }
-
-  public void setPaymentTerms(Integer paymentTerms) {
-    this.paymentTerms = paymentTerms;
-  }
-
-  public String getClientName() {
-    return clientName;
-  }
-
-  public void setClientName(String clientName) {
-    this.clientName = clientName;
-  }
-
-  public String getClientEmail() {
-    return clientEmail;
-  }
-
-  public void setClientEmail(String clientEmail) {
-    this.clientEmail = clientEmail;
-  }
-
-  public String getInvoiceStatus() {
-    return invoiceStatus;
-  }
-
-  public void setInvoiceStatus(String invoiceStatus) {
-    this.invoiceStatus = invoiceStatus;
-  }
-
-  public Address getSenderAddress() {
-    return senderAddress;
-  }
-
-  public void setSenderAddress(Address senderAddress) {
-    this.senderAddress = senderAddress;
-  }
-
-  public Address getClientAddress() {
-    return clientAddress;
-  }
-
-  public void setClientAddress(Address clientAddress) {
-    this.clientAddress = clientAddress;
-  }
-
-  public Float getTotal() {
-    return total;
-  }
-
-  public void setTotal(Float total) {
-    this.total = total;
-  }
-
-  public List<InvoiceItem> getInvoiceItems() {
-    return invoiceItems;
-  }
-
-  public void setInvoiceItems(List<InvoiceItem> invoiceItems) {
-    this.invoiceItems = invoiceItems;
-  }
 
   public void addInvoiceItem(InvoiceItem invoiceItem) {
     if (invoiceItems == null) {
@@ -205,40 +78,15 @@ public class Invoice {
     invoiceItems.add(invoiceItem);
   }
 
-  @Override
-  public String toString() {
-    return "Invoice{"
-        + "id="
-        + id
-        + ", invoiceReference='"
-        + invoiceReference
-        + '\''
-        + ", createdAt="
-        + createdAt
-        + ", paymentDue="
-        + paymentDue
-        + ", description='"
-        + description
-        + '\''
-        + ", paymentTerms="
-        + paymentTerms
-        + ", clientName='"
-        + clientName
-        + '\''
-        + ", clientEmail='"
-        + clientEmail
-        + '\''
-        + ", invoiceStatus='"
-        + invoiceStatus
-        + '\''
-        + ", senderAddress="
-        + senderAddress
-        + ", clientAddress="
-        + clientAddress
-        + ", total="
-        + total
-        + ", invoiceItems="
-        + invoiceItems
-        + '}';
+  public void recalculateTotal() {
+    if (invoiceItems != null) {
+      total =
+          invoiceItems.stream()
+              .filter(item -> item.getTotal() != null)
+              .map(InvoiceItem::getTotal)
+              .reduce(0f, Float::sum);
+    } else {
+      total = 0f;
+    }
   }
 }

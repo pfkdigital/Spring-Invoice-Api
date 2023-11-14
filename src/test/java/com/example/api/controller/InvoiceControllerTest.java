@@ -9,7 +9,7 @@ import com.example.api.exception.InvoiceNotFoundException;
 import com.example.api.service.InvoiceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -34,60 +34,82 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 public class InvoiceControllerTest {
+  private InvoiceDto invoiceDto;
+  private  Invoice invoice;
   @Autowired private MockMvc mockMvc;
   @MockBean private InvoiceService invoiceService;
   @Autowired private ObjectMapper objectMapper;
-  private static InvoiceDto invoiceDto;
-  private static Invoice invoice;
 
-  @BeforeAll
-  public static void setup() {
-    Address senderAddress = new Address("123 Sender St", "Sender City", "S123", "Sender Country");
-    Address clientAddress = new Address("456 Client Ave", "Client City", "C456", "Client Country");
+  @BeforeEach
+  public void setup() {
+    // Create a sender address using the builder
+    Address senderAddress =
+            Address.builder()
+                    .street("123 Sender St")
+                    .city("Sender City")
+                    .postCode("S123")
+                    .country("Sender Country")
+                    .build();
+
+    // Create a client address using the builder
+    Address clientAddress =
+            Address.builder()
+                    .street("456 Client Ave")
+                    .city("Client City")
+                    .postCode("C456")
+                    .country("Client Country")
+                    .build();
 
     // Sample InvoiceItem list
-    InvoiceItem item1 = new InvoiceItem("Item 1", 2, 100.0F, 200f); // Example item
-    InvoiceItem item2 = new InvoiceItem("Item 2", 3, 200.0F, 600f); // Another example item
-    List<InvoiceItem> invoiceItems = Arrays.asList(item1, item2);
+    List<InvoiceItem> invoiceItems =
+            Arrays.asList(
+                    InvoiceItem.builder().name("Item 1").quantity(2).price(100.0f).total(200.0f).build(),
+                    InvoiceItem.builder().name("Item 2").quantity(3).price(200.0f).total(600.0f).build());
 
-    // Sample InvoiceItem list
-    InvoiceItemDto item1Dto = new InvoiceItemDto(); // Example item
-    InvoiceItemDto item2Dto = new InvoiceItemDto(); // Another example item
-
-    List<InvoiceItemDto> invoiceItemsDto = Arrays.asList(item1Dto, item2Dto);
-
-    // Creating an instance of Invoice
+    // Creating an instance of Invoice using the builder
     invoice =
-        new Invoice(
-            "INV-1234", // invoiceReference
-            new Date(), // createdAt
-            new Date(), // paymentDue (should be a future date)
-            "Invoice for services", // description
-            30, // paymentTerms
-            "Client Inc.", // clientName
-            "client@email.com", // clientEmail
-            "Pending", // invoiceStatus
-            senderAddress, // senderAddress
-            clientAddress, // clientAddress
-            600.0f, // total (sum of item prices * quantities)
-            invoiceItems // invoiceItems
-            );
+            Invoice.builder()
+                    .invoiceReference("INV-1234")
+                    .createdAt(new Date())
+                    .paymentDue(new Date()) // Should be set to a future date
+                    .description("Invoice for services")
+                    .paymentTerms(30)
+                    .clientName("Client Inc.")
+                    .clientEmail("client@email.com")
+                    .invoiceStatus("Pending")
+                    .senderAddress(senderAddress)
+                    .clientAddress(clientAddress)
+                    .total(600.0f)
+                    .invoiceItems(invoiceItems)
+                    .build();
 
+    // Creating an instance of InvoiceDto using the builder
     invoiceDto =
-        new InvoiceDto(
-            "INV-1234", // invoiceReference
-            new Date(), // createdAt
-            new Date(), // paymentDue (should be a future date)
-            "Invoice for services", // description
-            30, // paymentTerms
-            "Client Inc.", // clientName
-            "client@email.com", // clientEmail
-            "Pending", // invoiceStatus
-            senderAddress, // senderAddress
-            clientAddress, // clientAddress
-            600.0f, // total (sum of item prices * quantities)
-            null // invoiceItems
-            );
+            InvoiceDto.builder()
+                    .invoiceReference("INV-1234")
+                    .createdAt(new Date())
+                    .paymentDue(new Date()) // Should be set to a future date
+                    .description("Invoice for services")
+                    .paymentTerms(30)
+                    .clientName("Client Inc.")
+                    .clientEmail("client@email.com")
+                    .invoiceStatus("Pending")
+                    .senderAddress(senderAddress)
+                    .clientAddress(clientAddress)
+                    .total(600.0f)
+                    .invoiceItems(
+                            invoiceItems.stream()
+                                    .map(
+                                            item ->
+                                                    InvoiceItemDto.builder()
+                                                            .id(item.getId())
+                                                            .name(item.getName())
+                                                            .quantity(item.getQuantity())
+                                                            .price(item.getPrice())
+                                                            .total(item.getTotal())
+                                                            .build())
+                                    .toList())
+                    .build();
   }
 
   @Test

@@ -4,6 +4,7 @@ import com.example.api.entity.Address;
 import com.example.api.entity.Invoice;
 import com.example.api.entity.InvoiceItem;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -18,34 +19,50 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 public class InvoiceRepositoryTest {
   @Autowired private InvoiceRepository invoiceRepository;
-  private static Invoice invoice;
+  private Invoice invoice;
 
-  @BeforeAll
-  public static void setup() {
-    Address senderAddress = new Address("123 Sender St", "Sender City", "S123", "Sender Country");
-    Address clientAddress = new Address("456 Client Ave", "Client City", "C456", "Client Country");
+  @BeforeEach
+  public void setup() {
+    // Create a sender address using the builder
+    Address senderAddress =
+            Address.builder()
+                    .street("123 Sender St")
+                    .city("Sender City")
+                    .postCode("S123")
+                    .country("Sender Country")
+                    .build();
+
+    // Create a client address using the builder
+    Address clientAddress =
+            Address.builder()
+                    .street("456 Client Ave")
+                    .city("Client City")
+                    .postCode("C456")
+                    .country("Client Country")
+                    .build();
 
     // Sample InvoiceItem list
-    InvoiceItem item1 = new InvoiceItem("Item 1", 2, 100.0f, 200f); // Example item
-    InvoiceItem item2 = new InvoiceItem("Item 2", 3, 200.0f, 600f); // Another example item
-    List<InvoiceItem> invoiceItems = Arrays.asList(item1, item2);
+    List<InvoiceItem> invoiceItems =
+            Arrays.asList(
+                    InvoiceItem.builder().name("Item 1").quantity(2).price(100.0f).total(200.0f).build(),
+                    InvoiceItem.builder().name("Item 2").quantity(3).price(200.0f).total(600.0f).build());
 
-    // Creating an instance of Invoice
+    // Creating an instance of Invoice using the builder
     invoice =
-        new Invoice(
-            "INV-1234", // invoiceReference
-            new Date(), // createdAt
-            new Date(), // paymentDue (should be a future date)
-            "Invoice for services", // description
-            30, // paymentTerms
-            "Client Inc.", // clientName
-            "client@email.com", // clientEmail
-            "Pending", // invoiceStatus
-            senderAddress, // senderAddress
-            clientAddress, // clientAddress
-            600.0f, // total (sum of item prices * quantities)
-            invoiceItems // invoiceItems
-            );
+            Invoice.builder()
+                    .invoiceReference("INV-1234")
+                    .createdAt(new Date())
+                    .paymentDue(new Date()) // Should be set to a future date
+                    .description("Invoice for services")
+                    .paymentTerms(30)
+                    .clientName("Client Inc.")
+                    .clientEmail("client@email.com")
+                    .invoiceStatus("Pending")
+                    .senderAddress(senderAddress)
+                    .clientAddress(clientAddress)
+                    .total(600.0f)
+                    .invoiceItems(invoiceItems)
+                    .build();
   }
 
   @Test

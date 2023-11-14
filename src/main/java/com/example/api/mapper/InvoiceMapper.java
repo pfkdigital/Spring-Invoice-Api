@@ -10,59 +10,50 @@ import java.util.List;
 @Component
 public class InvoiceMapper {
 
-    private final InvoiceItemMapper invoiceItemMapper;
+  private final InvoiceItemMapper invoiceItemMapper;
 
-    public InvoiceMapper(InvoiceItemMapper invoiceItemMapper) {
-        this.invoiceItemMapper = invoiceItemMapper;
-    }
+  public InvoiceMapper(InvoiceItemMapper invoiceItemMapper) {
+    this.invoiceItemMapper = invoiceItemMapper;
+  }
 
-    public Invoice toEntity(InvoiceDto invoiceDto){
-        Invoice invoice = new Invoice();
+  public Invoice toEntity(InvoiceDto invoiceDto) {
+    Invoice invoice =
+        Invoice.builder()
+            .invoiceReference(invoiceDto.getInvoiceReference())
+            .createdAt(invoiceDto.getCreatedAt())
+            .paymentDue(invoiceDto.getPaymentDue())
+            .description(invoiceDto.getDescription())
+            .paymentTerms(invoiceDto.getPaymentTerms())
+            .clientName(invoiceDto.getClientName())
+            .clientEmail(invoiceDto.getClientEmail())
+            .invoiceStatus(invoiceDto.getInvoiceStatus())
+            .senderAddress(invoiceDto.getSenderAddress())
+            .clientAddress(invoiceDto.getClientAddress())
+            .total(invoiceDto.getTotal())
+            .build();
 
-        invoice.setInvoiceReference(invoiceDto.getInvoiceReference());
-        invoice.setCreatedAt(invoiceDto.getCreatedAt());
-        invoice.setPaymentDue(invoiceDto.getPaymentDue());
-        invoice.setDescription(invoiceDto.getDescription());
-        invoice.setPaymentTerms(invoiceDto.getPaymentTerms());
-        invoice.setClientName(invoiceDto.getClientName());
-        invoice.setClientEmail(invoiceDto.getClientEmail());
-        invoice.setInvoiceStatus(invoiceDto.getInvoiceStatus());
-        invoice.setSenderAddress(invoiceDto.getSenderAddress());
-        invoice.setClientAddress(invoiceDto.getClientAddress());
+    invoiceDto.getInvoiceItems().stream()
+        .map(invoiceItemMapper::toEntity)
+        .forEach(invoice::addInvoiceItem);
 
-        if (invoiceDto.getInvoiceItems() != null) {
-            invoiceDto.getInvoiceItems().stream().map(invoiceItemMapper::toEntity).forEach(invoice::addInvoiceItem);
-        }
+    return invoice;
+  }
 
-        invoice.setTotal(invoiceDto.getTotal());
-
-        return invoice;
-    }
-
-    public InvoiceDto toDto(Invoice invoice){
-        InvoiceDto invoiceDTO = new InvoiceDto();
-        invoiceDTO.setId(invoice.getId());
-        invoiceDTO.setInvoiceReference(invoice.getInvoiceReference());
-        invoiceDTO.setCreatedAt(invoice.getCreatedAt());
-        invoiceDTO.setPaymentDue(invoice.getPaymentDue());
-        invoiceDTO.setDescription(invoice.getDescription());
-        invoiceDTO.setPaymentTerms(invoice.getPaymentTerms());
-        invoiceDTO.setClientName(invoice.getClientName());
-        invoiceDTO.setClientEmail(invoice.getClientEmail());
-        invoiceDTO.setInvoiceStatus(invoice.getInvoiceStatus());
-
-        // Assuming AddressMapper exists to convert Address to AddressDTO
-        invoiceDTO.setSenderAddress(invoice.getSenderAddress());
-        invoiceDTO.setClientAddress(invoice.getClientAddress());
-
-        // Convert each InvoiceItem to InvoiceItemDTO
-        if (invoice.getInvoiceItems() != null) {
-            List<InvoiceItemDto> invoiceItemDtoList = invoice.getInvoiceItems().stream().map(invoiceItemMapper::toDto).toList();
-            invoiceDTO.setInvoiceItems(invoiceItemDtoList);
-        }
-
-        invoiceDTO.setTotal(invoice.getTotal());
-
-        return invoiceDTO;
-    }
+  public InvoiceDto toDto(Invoice invoice) {
+    return InvoiceDto.builder()
+        .id(invoice.getId())
+        .invoiceReference(invoice.getInvoiceReference())
+        .createdAt(invoice.getCreatedAt())
+        .paymentDue(invoice.getPaymentDue())
+        .description(invoice.getDescription())
+        .paymentTerms(invoice.getPaymentTerms())
+        .clientName(invoice.getClientName())
+        .clientEmail(invoice.getClientEmail())
+        .invoiceStatus(invoice.getInvoiceStatus())
+        .senderAddress(invoice.getSenderAddress())
+        .clientAddress(invoice.getClientAddress())
+        .invoiceItems(invoice.getInvoiceItems().stream().map(invoiceItemMapper::toDto).toList())
+        .total(invoice.getTotal())
+        .build();
+  }
 }
