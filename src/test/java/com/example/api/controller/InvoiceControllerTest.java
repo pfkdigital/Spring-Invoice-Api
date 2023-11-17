@@ -3,7 +3,6 @@ package com.example.api.controller;
 import com.example.api.dto.InvoiceDto;
 import com.example.api.dto.InvoiceItemDto;
 import com.example.api.entity.Address;
-import com.example.api.entity.Invoice;
 import com.example.api.entity.InvoiceItem;
 import com.example.api.exception.InvoiceNotFoundException;
 import com.example.api.service.InvoiceService;
@@ -35,7 +34,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ExtendWith(MockitoExtension.class)
 public class InvoiceControllerTest {
   private InvoiceDto invoiceDto;
-  private Invoice invoice;
   @Autowired private MockMvc mockMvc;
   @MockBean private InvoiceService invoiceService;
   @Autowired private ObjectMapper objectMapper;
@@ -66,23 +64,6 @@ public class InvoiceControllerTest {
             InvoiceItem.builder().name("Item 1").quantity(2).price(100.0f).total(200.0f).build(),
             InvoiceItem.builder().name("Item 2").quantity(3).price(200.0f).total(600.0f).build());
 
-    // Creating an instance of Invoice using the builder
-    invoice =
-        Invoice.builder()
-            .invoiceReference("INV-1234")
-            .createdAt(new Date())
-            .paymentDue(new Date()) // Should be set to a future date
-            .description("Invoice for services")
-            .paymentTerms(30)
-            .clientName("Client Inc.")
-            .clientEmail("client@email.com")
-            .invoiceStatus("Pending")
-            .senderAddress(senderAddress)
-            .clientAddress(clientAddress)
-            .total(600.0f)
-            .invoiceItems(invoiceItems)
-            .build();
-
     // Creating an instance of InvoiceDto using the builder
     invoiceDto =
         InvoiceDto.builder()
@@ -93,7 +74,7 @@ public class InvoiceControllerTest {
             .paymentTerms(30)
             .clientName("Client Inc.")
             .clientEmail("client@email.com")
-            .invoiceStatus("Pending")
+            .invoiceStatus("paid")
             .senderAddress(senderAddress)
             .clientAddress(clientAddress)
             .total(600.0f)
@@ -170,7 +151,9 @@ public class InvoiceControllerTest {
   public void InvoiceController_GetInvoiceById_ReturnInvoiceNotFoundException() throws Exception {
     int invoiceId = 1;
     String expectedResponse = "Invoice of id " + invoiceId + " was not found";
-    doThrow(new InvoiceNotFoundException("")).when(invoiceService).getInvoiceById(invoiceId);
+    doThrow(new InvoiceNotFoundException(expectedResponse))
+        .when(invoiceService)
+        .getInvoiceById(invoiceId);
 
     ResultActions response =
         mockMvc.perform(
@@ -201,7 +184,9 @@ public class InvoiceControllerTest {
   public void InvoiceController_UpdateAnInvoice_ReturnInvoiceNotFoundException() throws Exception {
     int invoiceId = 1;
     String expectedResponse = "Invoice of id " + invoiceId + " was not found";
-    doThrow(new InvoiceNotFoundException("")).when(invoiceService).getInvoiceById(invoiceId);
+    doThrow(new InvoiceNotFoundException(expectedResponse))
+        .when(invoiceService)
+        .getInvoiceById(invoiceId);
 
     ResultActions response =
         mockMvc.perform(
@@ -210,6 +195,24 @@ public class InvoiceControllerTest {
     response
         .andDo(MockMvcResultHandlers.print())
         .andExpect(MockMvcResultMatchers.status().isNotFound());
+  }
+
+  @Test
+  public void InvoiceController_UpdateAnInvoiceStatus_ReturnUpdatedInvoice() throws Exception {
+    int invoiceId = 1;
+    when(invoiceService.updateInvoiceStatusToPaid(invoiceId)).thenReturn(invoiceDto);
+
+    ResultActions response =
+        mockMvc.perform(
+            put("/api/v1/invoices/{id}/update", invoiceId)
+                .contentType(MediaType.APPLICATION_JSON));
+
+    response
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().isAccepted())
+        .andExpect(
+            MockMvcResultMatchers.jsonPath(
+                "$.invoiceReference", CoreMatchers.is(invoiceDto.getInvoiceReference())));
   }
 
   @Test

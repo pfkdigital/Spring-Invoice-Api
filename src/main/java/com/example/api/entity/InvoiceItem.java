@@ -32,7 +32,7 @@ public class InvoiceItem {
   @Column(name = "total")
   private Float total;
 
-  @ManyToOne
+  @ManyToOne()
   @JoinColumn(name = "invoice_id")
   @JsonIgnore
   private Invoice invoice;

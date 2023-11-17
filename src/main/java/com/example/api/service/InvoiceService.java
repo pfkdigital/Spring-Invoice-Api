@@ -9,6 +9,6 @@ public interface InvoiceService {
     InvoiceDto getInvoiceById(Integer id);
     List<InvoiceDto> getAllInvoices();
     InvoiceDto updateInvoice(Integer id, InvoiceDto invoiceDto);
-    InvoiceDto updateInvoiceStatus(Integer id);
+    InvoiceDto updateInvoiceStatusToPaid(Integer id);
     String deleteInvoiceById(Integer id);
 }

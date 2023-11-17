@@ -70,7 +70,6 @@ public class InvoiceServiceTest {
             .senderAddress(senderAddress)
             .clientAddress(clientAddress)
             .total(600.0f)
-            .invoiceItems(invoiceItems)
             .build();
 
     // Creating an instance of InvoiceDto using the builder
@@ -100,6 +99,12 @@ public class InvoiceServiceTest {
                                 .build())
                     .toList())
             .build();
+
+    invoice.addInvoiceItem(
+            InvoiceItem.builder().name("Item 1").quantity(2).price(100.0f).total(200.0f).build());
+
+    invoice.addInvoiceItem(
+            InvoiceItem.builder().name("Item 2").quantity(3).price(200.0f).total(600.0f).build());
   }
 
   @Test
@@ -118,82 +123,98 @@ public class InvoiceServiceTest {
   @Test
   public void InvoiceService_GetInvoiceById_ReturnInvoiceDto() {
     int invoiceId = 1;
-    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.of(invoice));
     when(invoiceMapper.toDto(Mockito.any(Invoice.class))).thenReturn(invoiceDto);
 
     InvoiceDto selectedInvoice = invoiceService.getInvoiceById(invoiceId);
 
     assertNotNull(selectedInvoice);
     assertEquals("INV-1234", selectedInvoice.getInvoiceReference());
-    verify(invoiceRepository).findById(invoiceId);
+    verify(invoiceRepository).findInvoiceWithItemsById(invoiceId);
   }
 
   @Test
   public void InvoiceService_GetInvoiceById_ReturnInvoiceNotFoundException() {
     int invoiceId = 1;
-    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.empty());
 
     assertThrows(InvoiceNotFoundException.class, () -> invoiceService.getInvoiceById(invoiceId));
-    verify(invoiceRepository).findById(invoiceId);
+    verify(invoiceRepository).findInvoiceWithItemsById(invoiceId);
   }
 
   @Test
   public void InvoiceService_GetAllInvoices_ReturnAListOfInvoices() {
     List<Invoice> invoiceList = new ArrayList<>(List.of(invoice));
 
-    when(invoiceRepository.findAll()).thenReturn(invoiceList);
+    when(invoiceRepository.findAllInvoicesWithItems()).thenReturn(invoiceList);
     when(invoiceMapper.toDto(Mockito.any())).thenReturn(invoiceDto);
 
     List<InvoiceDto> invoiceDtos = invoiceService.getAllInvoices();
 
     assertNotNull(invoiceDtos);
     assertEquals(1, invoiceDtos.size());
-    verify(invoiceRepository).findAll();
+    verify(invoiceRepository).findAllInvoicesWithItems();
   }
 
   @Test
   public void InvoiceService_UpdateAnInvoice_ReturnUpdatedInvoice() {
     int invoiceId = 1;
 
-    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.of(invoice));
     when(invoiceRepository.save(Mockito.any())).thenReturn(invoice);
     when(invoiceMapper.toDto(Mockito.any())).thenReturn(invoiceDto);
 
     InvoiceDto updatedInvoice = invoiceService.updateInvoice(1, invoiceDto);
 
     assertNotNull(updatedInvoice);
-    verify(invoiceRepository).findById(invoiceId);
+    verify(invoiceRepository).findInvoiceWithItemsById(invoiceId);
+    verify(invoiceRepository).save(Mockito.any(Invoice.class));
+  }
+
+  @Test
+  public void InvoiceService_UpdateAnInvoiceStatus_ReturnUpdatedPaidInvoice() {
+    int invoiceId = 1;
+
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.of(invoice));
+    when(invoiceRepository.save(Mockito.any(Invoice.class))).thenReturn(invoice);
+    when(invoiceMapper.toDto(Mockito.any(Invoice.class))).thenReturn(invoiceDto);
+
+    InvoiceDto updatedInvoice = invoiceService.updateInvoiceStatusToPaid(invoiceId);
+
+    assertNotNull(updatedInvoice);
+
+    verify(invoiceRepository).findInvoiceWithItemsById(Mockito.anyInt());
     verify(invoiceRepository).save(Mockito.any(Invoice.class));
   }
 
   @Test
   public void InvoiceService_UpdateAnInvoice_ReturnInvoiceNotFoundException() {
     int invoiceId = 1;
-    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.empty());
 
     assertThrows(
         InvoiceNotFoundException.class, () -> invoiceService.updateInvoice(invoiceId, invoiceDto));
-    verify(invoiceRepository).findById(Mockito.anyInt());
+    verify(invoiceRepository).findInvoiceWithItemsById(Mockito.anyInt());
   }
 
   @Test
   public void InvoiceService_DeleteInvoiceById_ReturnString() {
     int invoiceId = 1;
-    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.of(invoice));
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.of(invoice));
     doNothing().when(invoiceRepository).delete(Mockito.any(Invoice.class));
 
     assertAll(() -> invoiceService.deleteInvoiceById(invoiceId));
-    verify(invoiceRepository).findById(Mockito.anyInt());
+    verify(invoiceRepository).findInvoiceWithItemsById(Mockito.anyInt());
     verify(invoiceRepository).delete(Mockito.any(Invoice.class));
   }
 
   @Test
   public void InvoiceService_DeleteAnInvoice_ReturnInvoiceNotFoundException() {
     int invoiceId = 1;
-    when(invoiceRepository.findById(invoiceId)).thenReturn(Optional.empty());
+    when(invoiceRepository.findInvoiceWithItemsById(invoiceId)).thenReturn(Optional.empty());
 
     assertThrows(
             InvoiceNotFoundException.class, () -> invoiceService.deleteInvoiceById(invoiceId));
-    verify(invoiceRepository).findById(Mockito.anyInt());
+    verify(invoiceRepository).findInvoiceWithItemsById(Mockito.anyInt());
   }
 }

@@ -1,6 +1,5 @@
 package com.example.api.event;
 
-import com.example.api.entity.Invoice;
 import com.example.api.entity.InvoiceItem;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostUpdate;

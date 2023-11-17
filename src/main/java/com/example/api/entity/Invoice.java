@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "invoices")
 @NoArgsConstructor
-@AllArgsConstructor()
+@AllArgsConstructor
 @Data
 @Builder
 @EntityListeners(InvoiceCalculateTotalEvent.class)
