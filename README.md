@@ -72,5 +72,3 @@ Run the test suite using Maven:
 Contributions are welcome. Please fork the repository and submit a pull request.
 
 ---
-
-This README provides a basic introduction to the project. You might want to add more details like API endpoints, configuration options, or a more detailed guide on how to use the application. Also, remember to include the actual license in the "License" section.
