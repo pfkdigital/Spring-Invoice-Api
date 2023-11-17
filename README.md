@@ -71,9 +71,6 @@ Run the test suite using Maven:
 ## Contribution
 Contributions are welcome. Please fork the repository and submit a pull request.
 
-## License
-[INSERT LICENSE HERE] - typically, this would be a link to the LICENSE file in the repository.
-
 ---
 
 This README provides a basic introduction to the project. You might want to add more details like API endpoints, configuration options, or a more detailed guide on how to use the application. Also, remember to include the actual license in the "License" section.
