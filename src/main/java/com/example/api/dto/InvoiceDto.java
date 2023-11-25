@@ -1,6 +1,7 @@
 package com.example.api.dto;
 
 import com.example.api.entity.Address;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,9 @@ import java.util.List;
 public class InvoiceDto {
   private Integer id;
   private String invoiceReference;
+  @JsonFormat(pattern = "dd MMM yyyy")
   private Date createdAt;
+  @JsonFormat(pattern = "dd MMM yyyy")
   private Date paymentDue;
   private String description;
   private Integer paymentTerms;
